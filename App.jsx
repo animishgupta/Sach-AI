@@ -205,7 +205,7 @@ const App = () => {
     const logIntervalRef = useRef(null);
     const canvasRef = useRef(null);
     const logEndRef = useRef(null);
-    // --- COMPREHENSIVE THEME LOGIC ---
+    
     const theme = useMemo(() => {
         if (!analysis)
             return { class: 'theme-idle', border: 'border-violet-500/20', text: 'text-white', scanner: 'text-violet-400' };
