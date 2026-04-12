@@ -3,6 +3,9 @@ import VideoProcessor from './components/VideoProcessor';
 import { analyzeVideoIntegrity } from './services/geminiService';
 import { AppStatus } from './types';
 import LiveCamera from "./components/LiveCamera";
+import EvidenceCard from "./components/EvidenceCard";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // --- FORENSIC LOG ENTRIES ---
 const FORENSIC_LOG_SEQUENCE = [
@@ -192,6 +195,51 @@ const scannerStyles = `
     vertical-align: text-bottom;
   }
   @keyframes blink-cursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 2rem;
+  }
+  .modal-content {
+    background: #0a0a0c;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 2rem;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 0 100px rgba(109, 40, 217, 0.2);
+  }
+  .modal-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 10;
+  }
+  .modal-close:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+  }
 `;
 const App = () => {
     const [isLanding, setIsLanding] = useState(true);
@@ -201,10 +249,12 @@ const App = () => {
     const [analysis, setAnalysis] = useState(null);
     const [error, setError] = useState(null);
     const [techLog, setTechLog] = useState([]);
+    const [showCardModal, setShowCardModal] = useState(false);
     const intervalRef = useRef(null);
     const logIntervalRef = useRef(null);
     const canvasRef = useRef(null);
     const logEndRef = useRef(null);
+    const cardRef = useRef(null);
     
     const theme = useMemo(() => {
         if (!analysis)
@@ -307,6 +357,32 @@ const App = () => {
         link.download = "SachAI_Forensic_Report.txt";
         link.click();
         URL.revokeObjectURL(url);
+    };
+
+    const handleCapturePDF = async () => {
+        if (!cardRef.current) return;
+        
+        try {
+            const canvas = await html2canvas(cardRef.current, {
+                scale: 2, // Higher resolution for professional look
+                backgroundColor: '#0a0a0c',
+                useCORS: true,
+                logging: false
+            });
+            
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'px',
+                format: [canvas.width, canvas.height]
+            });
+            
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+            pdf.save(`SachAI_Evidence_Card_${Date.now()}.pdf`);
+        } catch (err) {
+            console.error("PDF Generation Error:", err);
+            alert("Failed to generate PDF Evidence Card.");
+        }
     };
     const handleFramesExtracted = useCallback(async (extractedFrames) => {
         setFrames(extractedFrames);
@@ -664,6 +740,17 @@ const App = () => {
                     <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20"/>
                     <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/20"/>
                   </button>
+
+                  <button onClick={() => setShowCardModal(true)} className={`group relative w-full py-4 px-6 flex items-center justify-center gap-3 
+                      bg-violet-600 border border-violet-500 rounded-xl overflow-hidden 
+                      transition-all duration-300 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] 
+                      active:scale-[0.98] mt-4`}>
+                    <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 opacity-10"/>
+                    <svg className="w-4 h-4 text-white transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span className="text-[11px] font-black uppercase tracking-[0.25em] text-white">Preview Evidence Card</span>
+                  </button>
                 </div>)}
             </div>
 
@@ -842,6 +929,40 @@ const App = () => {
             </div>
           </footer>
         </>)}
+
+      {/* EVIDENCE CARD MODAL */}
+      {showCardModal && analysis && (
+        <div className="modal-overlay" onClick={() => setShowCardModal(false)}>
+          <div className="modal-content custom-scroll animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowCardModal(false)}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            
+            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-zinc-900/50 sticky top-0 z-20 backdrop-blur-md">
+               <div className="flex items-center gap-4">
+                 <button 
+                  onClick={() => setShowCardModal(false)}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors group"
+                 >
+                   <svg className="w-5 h-5 text-zinc-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
+                 </button>
+                 <h3 className="text-sm font-black uppercase tracking-widest text-violet-400">Forensic Evidence Preview</h3>
+               </div>
+               <button 
+                onClick={handleCapturePDF}
+                className="px-6 py-2.5 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-violet-500 hover:text-white transition-all shadow-xl"
+               >
+                 Export as PDF
+               </button>
+            </div>
+
+            <div className="p-4 md:p-12 flex justify-center bg-[#020204]">
+              <div ref={cardRef}>
+                <EvidenceCard data={analysis} timestamp={new Date().toLocaleString()} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>);
 };
 export default App;
