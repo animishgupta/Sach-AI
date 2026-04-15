@@ -7,7 +7,6 @@ import EvidenceCard from "./components/EvidenceCard";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-// --- FORENSIC LOG ENTRIES ---
 const FORENSIC_LOG_SEQUENCE = [
   "[INIT] Bootstrapping Neural Forensics Engine v4.2...",
   "[INFO] Allocating GPU memory blocks...",
@@ -36,7 +35,6 @@ const FORENSIC_LOG_SEQUENCE = [
   "[DONE] Analysis complete. Uploading verdict...",
 ];
 
-// --- ENHANCED NEURAL BLINK, GRID & FORENSIC STYLES ---
 const scannerStyles = `
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
@@ -75,7 +73,6 @@ const scannerStyles = `
     animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
   }
 
-  /* Dynamic Themes */
   .theme-idle { background: radial-gradient(circle at 50% -20%, #2e1065 0%, #020204 60%); }
   
   .theme-red { 
@@ -126,7 +123,6 @@ const scannerStyles = `
   }
   @keyframes pulse-node-scale { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(3.5); opacity: 0; } }
 
-  /* Neural Grid Canvas */
   .canvas-container {
     position: fixed;
     inset: 0;
@@ -134,7 +130,6 @@ const scannerStyles = `
     pointer-events: none;
   }
 
-  /* Technical Log Terminal */
   .tech-log-terminal {
     font-family: 'JetBrains Mono', 'Courier New', monospace;
     background: rgba(0, 0, 0, 0.6);
@@ -196,7 +191,6 @@ const scannerStyles = `
   }
   @keyframes blink-cursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-  /* Modal Styles */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -389,7 +383,6 @@ const App = () => {
         setStatus(AppStatus.ANALYZING);
         setTechLog([]);
 
-        // --- Technical Log Typewriter ---
         let logIdx = 0;
         logIntervalRef.current = setInterval(() => {
             if (logIdx < FORENSIC_LOG_SEQUENCE.length) {
@@ -425,7 +418,6 @@ const App = () => {
             setStatus(AppStatus.ERROR);
         }
     }, []);
-    // --- NEURAL GRID + NEURON PARTICLE SYSTEM ---
     useEffect(() => {
         if (!canvasRef.current) return;
         const canvas = canvasRef.current;
@@ -464,7 +456,6 @@ const App = () => {
                     });
                 }
             }
-            // Reset particles against new grid
             particles = Array.from({ length: NUM_PARTICLES }, () => spawnParticle(true));
         };
 
@@ -493,7 +484,6 @@ const App = () => {
             const colStep = w / GRID_COLS;
             const rowStep = h / GRID_ROWS;
 
-            // --- Draw grid lines ---
             ctx.lineWidth = 0.4;
             for (let r = 0; r <= GRID_ROWS; r++) {
                 for (let c = 0; c <= GRID_COLS; c++) {
@@ -504,7 +494,6 @@ const App = () => {
                     node.x = node.baseX + Math.sin(time * 0.4 + c * 0.3) * wobble;
                     node.y = node.baseY + Math.cos(time * 0.3 + r * 0.3) * wobble;
 
-                    // Horizontal line to right neighbor
                     if (c < GRID_COLS) {
                         const rn = nodes[idx + 1];
                         const alpha = 0.04 + Math.abs(Math.sin(time + c * 0.2 + r * 0.15)) * 0.06;
@@ -514,7 +503,6 @@ const App = () => {
                         ctx.lineTo(rn.x, rn.y);
                         ctx.stroke();
                     }
-                    // Vertical line to bottom neighbor
                     if (r < GRID_ROWS) {
                         const bn = nodes[idx + (GRID_COLS + 1)];
                         const alpha = 0.04 + Math.abs(Math.sin(time + r * 0.2 + c * 0.15)) * 0.06;
@@ -527,7 +515,6 @@ const App = () => {
                 }
             }
 
-            // --- Draw grid nodes ---
             for (let i = 0; i < nodes.length; i++) {
                 const node = nodes[i];
                 if (!node.active) continue;
@@ -541,13 +528,11 @@ const App = () => {
                 ctx.shadowBlur = 0;
             }
 
-            // --- Draw neuron particles ---
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i];
                 p.trail.push({ x: p.x, y: p.y });
                 if (p.trail.length > 18) p.trail.shift();
 
-                // Draw trail
                 for (let t = 1; t < p.trail.length; t++) {
                     const trailAlpha = (t / p.trail.length) * p.life * 0.55;
                     ctx.beginPath();
@@ -558,7 +543,6 @@ const App = () => {
                     ctx.stroke();
                 }
 
-                // Draw particle head
                 const headAlpha = p.life * 0.9;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -568,7 +552,6 @@ const App = () => {
                 ctx.fill();
                 ctx.shadowBlur = 0;
 
-                // Steer toward nearest grid node
                 let nearestDist = Infinity;
                 let nearest = null;
                 for (let n = 0; n < nodes.length; n++) {
@@ -583,20 +566,17 @@ const App = () => {
                     p.vy += (nearest.y - p.y) * pull * 0.01;
                 }
 
-                // Dampen & move
                 p.vx *= 0.98;
                 p.vy *= 0.98;
                 p.x += p.vx;
                 p.y += p.vy;
                 p.life -= 0.006;
 
-                // Respawn
                 if (p.life <= 0 || p.x < -40 || p.x > w + 40 || p.y < -40 || p.y > h + 40) {
                     particles[i] = spawnParticle();
                 }
             }
 
-            // --- Draw original swirling ribbon ---
             ctx.beginPath();
             ctx.lineWidth = 18;
             const gradient = ctx.createLinearGradient(0, 0, w, 0);
@@ -630,7 +610,6 @@ const App = () => {
         };
     }, []);
 
-    // Auto-scroll tech log to bottom
     useEffect(() => {
         if (logEndRef.current) {
             logEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -646,7 +625,6 @@ const App = () => {
     return (<div className={`min-h-screen ${isLanding ? 'theme-idle' : theme.class} transition-colors duration-1000 flex flex-col relative theme-transition`}>
       <style>{scannerStyles}</style>
       
-      {/* PERSISTENT AMBIENT BACKGROUND */}
       <canvas ref={canvasRef} className="canvas-container"/>
       
       <div className="grain"/>
@@ -800,9 +778,7 @@ const App = () => {
                     /* ====== REDESIGNED ANALYSIS RESULTS ====== */
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 relative z-10 space-y-8 overflow-y-auto custom-scroll pr-1">
 
-                      {/* ── SECTION 1: VERDICT HERO ── */}
                       <div className={`relative rounded-3xl p-8 overflow-hidden border ${theme.border}`} style={{background: 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(255,255,255,0.02) 100%)'}}>
-                        {/* Corner accents */}
                         <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 rounded-tl-3xl" style={{borderColor: 'currentColor', opacity: 0.3}}/>
                         <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 rounded-br-3xl" style={{borderColor: 'currentColor', opacity: 0.3}}/>
                         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -814,7 +790,6 @@ const App = () => {
                             <h2 className={`text-5xl md:text-7xl font-black uppercase leading-none tracking-tighter ${theme.text}`}>{analysis.verdict}</h2>
                             <p className="text-sm font-medium text-zinc-400 mt-3 max-w-md leading-relaxed">{analysis.safetyRecommendation}</p>
                           </div>
-                          {/* Score Ring */}
                           <div className="flex flex-col items-center gap-2 shrink-0">
                             <div className={`relative w-28 h-28 flex items-center justify-center rounded-full border-4 ${theme.class === 'theme-red' ? 'border-red-500/40' : theme.class === 'theme-yellow' ? 'border-yellow-400/40' : 'border-emerald-400/40'}`} style={{boxShadow: `0 0 30px ${theme.class === 'theme-red' ? 'rgba(239,68,68,0.2)' : theme.class === 'theme-yellow' ? 'rgba(234,179,8,0.2)' : 'rgba(52,211,153,0.2)'}`}}>
                               <div className="text-center">
@@ -827,10 +802,8 @@ const App = () => {
                         </div>
                       </div>
 
-                      {/* ── SECTION 2: TWO-COL GRID ── */}
                       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-                        {/* Technical Analysis */}
                         <div className="glass-card rounded-2xl p-6 border border-white/5 space-y-4">
                           <div className="flex items-center gap-2 mb-1">
                             <svg className="w-3.5 h-3.5 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.674M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
@@ -852,7 +825,6 @@ const App = () => {
                           </div>
                         </div>
 
-                        {/* Detected Anomalies */}
                         <div className="glass-card rounded-2xl p-6 border border-white/5 space-y-4">
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
@@ -880,7 +852,6 @@ const App = () => {
                         </div>
                       </div>
 
-                      {/* ── SECTION 3: OSINT + CIRCULATION ── */}
                       <div className="glass-card rounded-2xl p-6 border border-white/5">
                         <div className="flex items-center gap-2 mb-5">
                           <svg className="w-3.5 h-3.5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>
@@ -930,7 +901,6 @@ const App = () => {
           </footer>
         </>)}
 
-      {/* EVIDENCE CARD MODAL */}
       {showCardModal && analysis && (
         <div className="modal-overlay" onClick={() => setShowCardModal(false)}>
           <div className="modal-content custom-scroll animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>

@@ -18,13 +18,11 @@ const EvidenceCard = ({ data, timestamp, id }) => {
       className="w-[800px] bg-[#0a0a0c] text-white p-12 font-sans relative overflow-hidden border border-white/10"
       style={{ minHeight: '1100px' }}
     >
-      {/* Background forensic grid decoration */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ 
         backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)',
         backgroundSize: '40px 40px'
       }} />
 
-      {/* Header */}
       <div className="relative z-10 flex justify-between items-start mb-12 border-b border-white/10 pb-8">
         <div>
           <h1 className="text-4xl font-black tracking-tighter mb-1">सचAI</h1>
@@ -36,7 +34,6 @@ const EvidenceCard = ({ data, timestamp, id }) => {
         </div>
       </div>
 
-      {/* Verdict Hero */}
       <div className="relative z-10 mb-12">
         <div className="inline-block px-4 py-1 rounded-full border border-white/10 bg-white/5 mb-4">
           <span className="text-[9px] font-bold uppercase tracking-widest opacity-60">Authentication Status</span>
@@ -59,7 +56,6 @@ const EvidenceCard = ({ data, timestamp, id }) => {
         </div>
       </div>
 
-      {/* Forensic Details Grid */}
       <div className="relative z-10 grid grid-cols-2 gap-8 mb-12">
         <div className="space-y-6">
           <div className="p-6 bg-white/[0.02] border border-white/5 rounded-2xl">
@@ -108,7 +104,6 @@ const EvidenceCard = ({ data, timestamp, id }) => {
         </div>
       </div>
 
-      {/* Detailed Technical Analysis */}
       <div className="relative z-10 p-8 bg-white/[0.02] border border-white/5 rounded-3xl mb-12">
         <h3 className="text-[10px] font-bold uppercase tracking-widest text-violet-400 mb-4">Technically Findings</h3>
         <p className="text-sm font-light leading-relaxed text-zinc-300">
@@ -116,13 +111,11 @@ const EvidenceCard = ({ data, timestamp, id }) => {
         </p>
       </div>
 
-      {/* Safety Recommendation */}
       <div className="relative z-10 p-6 rounded-2xl border" style={{ borderColor: theme.border, backgroundColor: theme.bg }}>
         <p className="text-[9px] font-black uppercase tracking-widest mb-2" style={{ color: theme.color }}>System Recommendation</p>
         <p className="text-sm font-medium italic">"{data.safetyRecommendation}"</p>
       </div>
 
-      {/* Footer / QR / Signatures */}
       <div className="absolute bottom-12 left-12 right-12 flex justify-between items-end border-t border-white/10 pt-8">
         <div className="opacity-30">
           <p className="text-[8px] font-mono leading-tight uppercase">
@@ -132,7 +125,6 @@ const EvidenceCard = ({ data, timestamp, id }) => {
           </p>
         </div>
         
-        {/* Decorative Fake QR Area */}
         <div className="flex gap-6 items-center">
           <div className="text-right">
              <p className="text-[9px] font-black uppercase tracking-[0.2em] mb-1">Verify Authenticity</p>
@@ -144,7 +136,6 @@ const EvidenceCard = ({ data, timestamp, id }) => {
         </div>
       </div>
 
-      {/* Official Forensic Seal (CSS design) */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border-[20px] border-white/[0.02] rounded-full pointer-events-none flex items-center justify-center">
          <span className="text-white/[0.02] text-8xl font-black rotate-[-35deg] uppercase tracking-[0.5em]">Verified</span>
       </div>

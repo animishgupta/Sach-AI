@@ -31,11 +31,10 @@ const LiveCamera = ({ onCapture }) => {
                 timestamp: "0"
             }
         ]);
-        stopCamera(); // 🔥 auto stop after capture (clean UX)
+        stopCamera();
     };
     return (<div className="glass-card p-4 rounded-2xl border border-white/10 space-y-4">
 
-      {/* CAMERA VIEW */}
       <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40 flex items-center justify-center">
         {!isCameraOn && (<div className="text-center opacity-40 text-xs uppercase tracking-widest">
             Camera Ready
@@ -44,7 +43,6 @@ const LiveCamera = ({ onCapture }) => {
         <video ref={videoRef} className={`w-full h-full object-cover ${!isCameraOn ? "hidden" : ""}`}/>
       </div>
 
-      {/* CONTROLS */}
       <div className="flex gap-3">
         {!isCameraOn ? (<button onClick={startCamera} className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest 
             border border-violet-500/30 text-violet-400 rounded-lg 

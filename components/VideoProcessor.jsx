@@ -45,7 +45,6 @@ const VideoProcessor = ({ onFramesExtracted, onProcessingUpdate, onError }) => {
         if (!selectedFile || !previewUrl)
             return;
         setIsProcessing(true);
-        // PHOTO PROCESSING
         if (fileType === 'image') {
             const img = new Image();
             img.src = previewUrl;
@@ -69,7 +68,6 @@ const VideoProcessor = ({ onFramesExtracted, onProcessingUpdate, onError }) => {
             };
             return;
         }
-        // VIDEO PROCESSING
         if (fileType === 'video') {
             const video = videoRef.current;
             if (!video)

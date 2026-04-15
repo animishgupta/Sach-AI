@@ -13,9 +13,8 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Middlewares
 app.use(cors());
-app.use(express.json({ limit: '50mb' })); // Increased limit to accept image frames
+app.use(express.json({ limit: '50mb' }));
 
 const API_KEY = process.env.GEMINI_API_KEY;
 
@@ -42,11 +41,6 @@ app.post('/api/analyze', async (req, res) => {
           .filter((_, i) => i % Math.max(1, Math.floor(frames.length / 15)) === 0)
           .slice(0, 15);
 
-    /**
-     *  THE "HARD-STRIKE" PROTOCOL:
-     * 1. IMMEDIATE check for vulgarity/intimacy to drive UI Theme.
-     * 2. If clean, perform 99% accuracy Deepfake Audit.
-     */
     const forensicPrompt = `
 [STEP 1: VULGARITY HARD-CHECK]
 Scan all frames for:
@@ -170,8 +164,6 @@ Accuracy and forensic rigor are critical.
         thinkingConfig: { thinkingBudget: 6000 }, 
         responseMimeType: "application/json",
         
-        // API SAFETY OVERRIDE:
-        // Set to BLOCK_NONE so the AI labels explicit content for our UI instead of crashing.
         safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
@@ -216,7 +208,6 @@ Accuracy and forensic rigor are critical.
             safetyRecommendation: { type: Type.STRING },
             forensicInsights: { type: Type.ARRAY, items: { type: Type.STRING } },
 
-            /* 🔥 OSINT & CIRCULATION INTELLIGENCE */
             probableOrigin: { type: Type.STRING },
             circulationChannels: { type: Type.ARRAY, items: { type: Type.STRING } },
             contentTheme: { type: Type.STRING },
@@ -248,32 +239,26 @@ Accuracy and forensic rigor are critical.
 
     const finalResult = JSON.parse(response.text.trim());
 
-    /** * DYNAMIC UI & THEME LOGIC
-     * 1. EXPLICIT CONTENT or DEEPFAKE -> Red BG (#b91c1c)
-     * 2. SUSPICIOUS -> Yellow BG (#facc15)
-     * 3. AUTHENTIC -> Green BG (#064e3b)
-     */
     
     if (finalResult.isExplicit) {
       return res.json({
         ...finalResult,
         integrityScore: 0,
-        verdict: "Explicit Content", // Corrected terminology
-        themeColor: "#b91c1c", // RED THEME
-        showSafeBadge: false, // Disables "Safe to Use" message
-        // AI-Driven dynamic countermeasure
+        verdict: "Explicit Content", 
+        themeColor: "#b91c1c", 
+        showSafeBadge: false, 
         activeCountermeasure: finalResult.safetyRecommendation 
       });
     }
 
-    let themeColor = "#b91c1c"; // Default RED for Deepfake
+    let themeColor = "#b91c1c"; 
     let showSafeBadge = false;
 
     if (finalResult.verdict === "AUTHENTIC") {
-      themeColor = "#064e3b"; // GREEN
+      themeColor = "#064e3b"; 
       showSafeBadge = true;
     } else if (finalResult.verdict === "SUSPICIOUS") {
-      themeColor = "#facc15"; // YELLOW
+      themeColor = "#facc15"; 
       showSafeBadge = false;
     }
 
